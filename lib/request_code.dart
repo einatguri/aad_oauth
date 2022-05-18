@@ -34,11 +34,13 @@ class RequestCode {
 
     if (uri.queryParameters['error'] != null) {
       _config.navigatorKey.currentState!.pop();
+      return NavigationDecision.prevent;
     }
 
     if (uri.queryParameters['code'] != null) {
       _code = uri.queryParameters['code'];
       _config.navigatorKey.currentState!.pop();
+      return NavigationDecision.prevent;
     }
     return NavigationDecision.navigate;
   }
