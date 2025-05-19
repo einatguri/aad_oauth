@@ -96,7 +96,7 @@ class WebOAuth extends CoreOAuth {
 
   @override
   Future<Either<Failure, Token>> login(
-      {bool refreshIfAvailable = false}) async {
+      {required bool externalLogin, bool refreshIfAvailable = false}) async {
     final completer = Completer<Either<Failure, Token>>();
 
     jsLogin(

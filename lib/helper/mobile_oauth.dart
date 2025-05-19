@@ -37,9 +37,10 @@ class MobileOAuth extends CoreOAuth {
   /// both access and refresh tokens are invalid, the web gui will be used.
   @override
   Future<Either<Failure, Token>> login(
-      {bool refreshIfAvailable = false}) async {
+      {required bool externalLogin, bool refreshIfAvailable = false}) async {
     await _removeOldTokenOnFirstLogin();
-    return await _authorization(refreshIfAvailable: refreshIfAvailable);
+    return await _authorization(
+        externalLogin: externalLogin, refreshIfAvailable: refreshIfAvailable);
   }
 
   /// Tries to silently login. will try to use the existing refresh token to get
@@ -121,7 +122,7 @@ class MobileOAuth extends CoreOAuth {
   /// will be returned, as long as we deem it still valid. In the event that
   /// both access and refresh tokens are invalid, the web gui will be used.
   Future<Either<Failure, Token>> _authorization(
-      {bool refreshIfAvailable = false}) async {
+      {required bool externalLogin, bool refreshIfAvailable = false}) async {
     var token = await _authStorage.loadTokenFromCache();
 
     if (!refreshIfAvailable) {
@@ -142,7 +143,7 @@ class MobileOAuth extends CoreOAuth {
     }
 
     if (!token.hasValidAccessToken()) {
-      final result = await _performFullAuthFlow();
+      final result = await _performFullAuthFlow(externalLogin: externalLogin);
       Failure? failure;
       result.fold(
         (l) => failure = l,
@@ -158,8 +159,9 @@ class MobileOAuth extends CoreOAuth {
   }
 
   /// Authorize user via refresh token or web gui if necessary.
-  Future<Either<Failure, Token>> _performFullAuthFlow() async {
-    var code = await _requestCode.requestCode();
+  Future<Either<Failure, Token>> _performFullAuthFlow(
+      {required bool externalLogin}) async {
+    var code = await _requestCode.requestCode(externalLogin: externalLogin);
     if (code == null) {
       return Left(AadOauthFailure(
         errorType: ErrorType.accessDeniedOrAuthenticationCanceled,

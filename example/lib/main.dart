@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void login(bool redirect) async {
     config.webUseRedirect = redirect;
-    final result = await oauth.login();
+    final result = await oauth.login(externalLogin: false);
     result.fold(
       (l) => showError(l.toString()),
       (r) => showMessage('Logged in successfully, your access token: $r'),

@@ -194,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void login(AadOAuth oAuth) async {
-    final result = await oAuth.login();
+    final result = await oAuth.login(externalLogin: false);
     result.fold(
       (l) => showError(l.toString()),
       (r) => showMessage('Logged in successfully, your access token: $r'),

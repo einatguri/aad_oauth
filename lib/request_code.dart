@@ -31,7 +31,7 @@ class RequestCode {
     return _onCodeStream ??= _onCodeListener.stream.asBroadcastStream();
   }
 
-  Future<String?> requestCode() async {
+  Future<String?> requestCode({required bool externalLogin}) async {
     // Reset the flag at the start of each request
     _externalAuthAttempted = false;
 
@@ -53,11 +53,10 @@ class RequestCode {
 
     print('Authorization URL: $initialURL');
     print('Redirect URI: ${_config.redirectUri}');
+    bool isAndroid10 = false;
 
     // Check for Android 10
     if (Platform.isAndroid) {
-      bool isAndroid10 = false;
-
       try {
         isAndroid10 = await AndroidVersionChecker.isAndroid10();
         print('Is device Android 10? $isAndroid10');
@@ -65,20 +64,20 @@ class RequestCode {
         print('Error checking Android version: $e');
         isAndroid10 = false;
       }
+    }
 
-      // Only use external browser for Android 10
-      if (isAndroid10) {
-        _externalAuthAttempted = true;
+    // some devices with Android 10 has a bug in the webview so it will always be external
+    if (externalLogin || isAndroid10) {
+      _externalAuthAttempted = true;
 
-        try {
-          // Use external browser flow with original redirect URI scheme
-          final code = await _useExternalBrowserAuth(initialURL);
-          return code;
-        } catch (e) {
-          print('EXTERNAL BROWSER AUTH FAILED: $e');
-          // Propagate the error - do NOT fall back to WebView
-          throw Exception('External browser authentication failed: $e');
-        }
+      try {
+        // Use external browser flow with original redirect URI scheme
+        final code = await _useExternalBrowserAuth(initialURL);
+        return code;
+      } catch (e) {
+        print('EXTERNAL BROWSER AUTH FAILED: $e');
+        // Propagate the error - do NOT fall back to WebView
+        throw Exception('External browser authentication failed: $e');
       }
     }
 
