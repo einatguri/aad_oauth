@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'model/config.dart';
@@ -108,10 +108,10 @@ class RequestCode {
       print('Using external browser with scheme: $callbackScheme');
 
       // Use flutter_web_auth with the actual redirect URI scheme
-      final result = await FlutterWebAuth.authenticate(
+      final result = await FlutterWebAuth2.authenticate(
         url: url,
         callbackUrlScheme: callbackScheme,
-        preferEphemeral: true,
+        options: FlutterWebAuth2Options(preferEphemeral: true),
       );
 
       print('External browser auth completed, processing result');
